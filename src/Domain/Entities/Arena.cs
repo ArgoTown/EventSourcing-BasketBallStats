@@ -1,6 +1,6 @@
 ﻿namespace BasketballStats.Domain.Entities
 {
-    public record Arena
+    public class Arena
     {
         public long Id { get; init; }
         public Guid ArenaId { get; init; } = Guid.NewGuid();
