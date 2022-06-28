@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  basketballstats:
+    image: ${DOCKER_REGISTRY-}basketballstats
+    build:
+      context: .
+      dockerfile: src/Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      Database__InMemory: false
+      Database__ConnectionStrings__PostgreSql: "Host=postgres;Database=BasketBallStats;Username=guest;Password=guest"
+    ports:
+      - 5001:80
+
+  postgres:
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_USER: guest
+      POSTGRES_PASSWORD: guest
+    ports:
+      - 5432:5432 
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
