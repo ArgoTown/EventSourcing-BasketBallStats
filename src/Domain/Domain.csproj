@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyName>BasketballStats.Domain</AssemblyName>
+		<RootNamespace>BasketballStats.Domain</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="BasketballStats.Api" />
+		<InternalsVisibleTo Include="UnitTests" />
+	</ItemGroup>
+
+</Project>
