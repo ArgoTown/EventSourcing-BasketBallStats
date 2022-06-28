@@ -49,7 +49,6 @@ namespace UnitTests.Domain.Services
             Should.Throw<KeyNotFoundException>(() => sut.GetTypeByEventName(eventName));
         }
 
-
         [Fact]
         public void GetTypeByEventName_WithProvidedNullEventName_ShouldThrowKeyNotFoundException()
         {
