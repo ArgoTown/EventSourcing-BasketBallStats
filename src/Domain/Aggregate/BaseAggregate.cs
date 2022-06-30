@@ -12,7 +12,7 @@ namespace BasketballStats.Domain.Aggregate
 
         protected BaseAggregate(TAggregate state)
         {
-            State = state ?? throw new ArgumentNullException("Generic state not provided.");
+            State = state ?? throw new ArgumentNullException("Aggregate state must be provided.");
         }
 
         protected void Raise(IEvent @event)

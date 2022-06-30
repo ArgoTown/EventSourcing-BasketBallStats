@@ -10,7 +10,7 @@ namespace UnitTests.Domain
         [Fact]
         public void State_WithNullValue_ShouldThrowException()
         {
-            // Arrange Act Assert
+            // Arrange & Act & Assert
             Should.Throw<ArgumentNullException>(() => new PlayerAggregate(null));
         }
 
