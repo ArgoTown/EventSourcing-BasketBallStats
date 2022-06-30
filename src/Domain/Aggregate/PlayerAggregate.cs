@@ -5,9 +5,8 @@ namespace BasketballStats.Domain.Aggregate
 {
     public sealed class PlayerAggregate : BaseAggregate<Player>
     {
-        public PlayerAggregate(Player player)
+        public PlayerAggregate(Player player) : base(player)
         {
-            State = player;
         }
 
         public void AddStatistic(NegativeStatistic statistic)

@@ -7,8 +7,13 @@ namespace BasketballStats.Domain.Aggregate
         private readonly List<IEvent> _events = new();
         public IReadOnlyList<IEvent> UncommittedEvents => _events;
         public void MarkEventsAsCommitted() => _events.Clear();
-        public TAggregate State { get; set; } = default!;
+        public TAggregate State { get; private set; }
         public int Version { get; private set; }
+
+        protected BaseAggregate(TAggregate state)
+        {
+            State = state ?? throw new ArgumentNullException("Generic state not provided.");
+        }
 
         protected void Raise(IEvent @event)
         {
