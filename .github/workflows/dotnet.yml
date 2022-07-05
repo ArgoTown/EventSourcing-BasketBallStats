@@ -18,7 +18,8 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore ../../src/Api/Api.csproj
+      run: dotnet restore
+      working-directory: src/Api
     - name: Build
       run: dotnet build --no-restore
     - name: Test
