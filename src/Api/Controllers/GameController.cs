@@ -76,7 +76,7 @@ namespace BasketballStats.Api.Controllers
             var player = new Player(gameId, teamId, playerId);
             await _handler.Handle(new AddPlayerPositiveStatisticCommand { Player = player, PositiveStatistic = statistic });
 
-            return Ok();
+            return CreatedAtAction(nameof(GetPlayerStatistics), new { GameId = gameId, TeamId = teamId, PlayerId = playerId }, null);
         }
 
         [HttpPost("game/{gameId}/team/{teamId}/player/{playerId}/negative/event")]
@@ -96,7 +96,7 @@ namespace BasketballStats.Api.Controllers
             var player = new Player(gameId, teamId, playerId);
             await _handler.Handle(new AddPlayerNegativeStatisticCommand { Player = player, NegativeStatistic = statistic });
 
-            return Ok();
+            return CreatedAtAction(nameof(GetPlayerStatistics), new { GameId = gameId, TeamId = teamId, PlayerId = playerId }, null);
         }
 
         [HttpGet("game/{gameId}/team/{teamId}/player/{playerId}/stats")]
