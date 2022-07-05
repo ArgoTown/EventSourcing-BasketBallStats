@@ -7,6 +7,8 @@ using BasketballStats.Domain.Services;
 using BasketballStats.Infrastructure.Repositories;
 using BasketballStats.Infrastructure.Synchronizer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +17,16 @@ builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializ
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services
     .AddEndpointsApiExplorer()
-    .AddSwaggerGen()
+    .AddSwaggerGen(options =>
+    {
+        options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
+        options.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Version = "v1",
+            Title = "Basketball Stats API",
+            Description = "Event sourcing API Example"
+        });
+    })
     .AddSingleton<ITypeResolverService, TypeResolverService>()
     .AddScoped<IEventsService, EventsService>()
     .AddScoped(sp => new StatisticCommandHandler(

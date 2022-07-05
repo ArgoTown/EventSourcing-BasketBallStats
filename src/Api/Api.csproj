@@ -10,7 +10,7 @@
     <DockerComposeProjectPath>docker-compose.dcproj</DockerComposeProjectPath>
     <AssemblyName>BasketballStats.Api</AssemblyName>
     <RootNamespace>BasketballStats.Api</RootNamespace>
-    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
