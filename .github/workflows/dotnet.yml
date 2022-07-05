@@ -24,4 +24,4 @@ jobs:
       run: dotnet build --no-restore
       working-directory: src/Api
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test ./BasketBallStats.sln --no-build --verbosity normal
