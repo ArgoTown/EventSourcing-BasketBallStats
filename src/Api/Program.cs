@@ -14,6 +14,7 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services
     .AddEndpointsApiExplorer()
@@ -32,6 +33,8 @@ builder.Services
     .AddScoped<IQueryHandler<GetPlayerStatisticsQuery, PlayerStats>, PlayerStatisticsQueryHandler>()
     .AddScoped<ICommandHandler, StatisticCommandHandler>();
 
+var healthChecks = builder.Services.AddHealthChecks();
+
 var isDataInMemory = builder.Configuration.GetRequiredSection("Database").GetValue<bool>("InMemory");
 if (isDataInMemory)
 {
@@ -43,10 +46,12 @@ if (isDataInMemory)
 }
 else
 {
+    healthChecks.AddNpgSql(builder.Configuration["Database:ConnectionStrings:PostgreSql"]);
+
     builder.Services
         .AddScoped<IEventStoreRepository, EventStoreRepository>()
         .AddScoped<IGameRepository, GameRepository>()
-        .AddDbContextPool<EventsContext>(options => options.UseNpgsql("Host=postgres;Database=BasketBallStats;Username=guest;Password=guest"))
+        .AddDbContextPool<EventsContext>(options => options.UseNpgsql(builder.Configuration["Database:ConnectionStrings:PostgreSql"]))
         .AddScoped<IGameStatsReadModel, GameStatsReadModelRepository>()
         .AddHostedService<ReadModelBackgroundService>();
 }
@@ -73,5 +78,7 @@ if (!isDataInMemory)
     var db = scope.ServiceProvider.GetRequiredService<EventsContext>();
     db.Database.Migrate();
 }
+
+app.MapHealthChecks("/health");
 
 await app.RunAsync();
