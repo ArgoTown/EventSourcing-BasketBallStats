@@ -9,8 +9,6 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      Database__InMemory: false
-      Database__ConnectionStrings__PostgreSql: "Host=postgres;Database=BasketBallStats;Username=guest;Password=guest"
     ports:
       - 5001:80
 
