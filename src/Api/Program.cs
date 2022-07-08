@@ -29,10 +29,6 @@ builder.Services
     })
     .AddSingleton<ITypeResolverService, TypeResolverService>()
     .AddScoped<IEventsService, EventsService>()
-    .AddScoped(sp => new StatisticCommandHandler(
-        sp.GetRequiredService<IEventStoreRepository>(),
-        sp.GetRequiredService<IEventsService>()
-        ))
     .AddScoped<IQueryHandler<GetPlayerStatisticsQuery, PlayerStats>, PlayerStatisticsQueryHandler>()
     .AddScoped<ICommandHandler, StatisticCommandHandler>();
 
