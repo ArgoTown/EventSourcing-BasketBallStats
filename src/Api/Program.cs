@@ -6,6 +6,7 @@ using BasketballStats.Domain.Repositories;
 using BasketballStats.Domain.Services;
 using BasketballStats.Infrastructure.Repositories;
 using BasketballStats.Infrastructure.Synchronizer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -46,7 +47,7 @@ if (isDataInMemory)
 }
 else
 {
-    healthChecks.AddNpgSql(builder.Configuration["Database:ConnectionStrings:PostgreSql"]);
+    healthChecks.AddNpgSql(builder.Configuration["Database:ConnectionStrings:PostgreSql"], tags: new[] { "sql", "ready" });
 
     builder.Services
         .AddScoped<IEventStoreRepository, EventStoreRepository>()
@@ -77,8 +78,9 @@ if (!isDataInMemory)
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<EventsContext>();
     db.Database.Migrate();
+    app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = healthCheck => healthCheck.Tags.Contains("ready") });
 }
 
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = healthCheck => false });
 
 await app.RunAsync();
