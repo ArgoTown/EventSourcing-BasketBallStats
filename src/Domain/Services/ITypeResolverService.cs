@@ -1,8 +1,7 @@
-﻿namespace BasketballStats.Domain.Services
+﻿namespace BasketballStats.Domain.Services;
+
+public interface ITypeResolverService
 {
-    public interface ITypeResolverService
-    {
-        Type GetTypeByEventName(string eventName);
-        string GetEventNameByType(Type eventType);
-    }
+    Type GetTypeByEventName(string eventName);
+    string GetEventNameByType(Type eventType);
 }

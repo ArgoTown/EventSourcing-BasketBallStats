@@ -1,10 +1,9 @@
 ﻿using BasketballStats.Domain.Aggregate;
 using BasketballStats.Domain.Events;
 
-namespace BasketballStats.Domain.Services
+namespace BasketballStats.Domain.Services;
+
+public interface IEventsService
 {
-    public interface IEventsService
-    {
-        Task<IReadOnlyCollection<IEvent>> GetExistingGameEvents(PlayerAggregate aggregate);
-    }
+    Task<IReadOnlyCollection<IEvent>> GetExistingGameEvents(PlayerAggregate aggregate);
 }

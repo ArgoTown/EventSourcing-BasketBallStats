@@ -1,7 +1,6 @@
-﻿namespace BasketballStats.Api.Application.QueryHandlers
+﻿namespace BasketballStats.Api.Application.QueryHandlers;
+
+public interface IQueryHandler<TQuery, TResult>
 {
-    public interface IQueryHandler<TQuery, TResult>
-    {
-        Task<TResult> Query(TQuery query);
-    }
+    Task<TResult> Query(TQuery query);
 }

@@ -1,10 +1,9 @@
 ﻿using BasketballStats.Domain.Aggregate;
 
-namespace BasketballStats.Domain.Repositories
+namespace BasketballStats.Domain.Repositories;
+
+public interface IGameRepository
 {
-    public interface IGameRepository
-    {
-        Task Add(Game game);
-        Task<Game> Get(Guid gameId);
-    }
+    Task Add(Game game);
+    Task<Game> Get(Guid gameId);
 }
