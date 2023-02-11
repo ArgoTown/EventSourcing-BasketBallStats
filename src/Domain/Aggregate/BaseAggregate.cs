@@ -6,7 +6,6 @@ public abstract class BaseAggregate<TAggregate> where TAggregate : class
 {
     private readonly List<IEvent> _events = new();
     public IReadOnlyList<IEvent> UncommittedEvents => _events;
-    public void MarkEventsAsCommitted() => _events.Clear();
     public TAggregate State { get; private set; }
     public int Version { get; private set; }
 

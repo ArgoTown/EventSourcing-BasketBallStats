@@ -43,6 +43,5 @@ public class StatisticCommandHandler : ICommandHandler
     private async Task PersistHappenedEvents(PlayerAggregate aggregate)
     {
         await _eventStoreRepository.Add(aggregate);
-        aggregate.MarkEventsAsCommitted();
     }
 }
