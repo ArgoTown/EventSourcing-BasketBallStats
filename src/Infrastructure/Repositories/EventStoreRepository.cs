@@ -3,54 +3,59 @@ using BasketballStats.Domain.Aggregate;
 using BasketballStats.Domain.Repositories;
 using BasketballStats.Domain.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Internal;
 using System.Text.Json;
 
-namespace BasketballStats.Infrastructure.Repositories
+namespace BasketballStats.Infrastructure.Repositories;
+
+internal sealed class EventStoreRepository : IEventStoreRepository
 {
-    internal sealed class EventStoreRepository : IEventStoreRepository
+    private readonly EventsContext _context;
+    private readonly ITypeResolverService _typeResolverService;
+    private readonly ISystemClock _systemClock;
+
+    public EventStoreRepository(
+        EventsContext context, 
+        ITypeResolverService typeResolverService,
+        ISystemClock systemClock)
     {
-        private readonly EventsContext _context;
-        private readonly ITypeResolverService _typeResolverService;
+        _context = context;
+        _typeResolverService = typeResolverService;
+        _systemClock = systemClock;
+    }
 
-        public EventStoreRepository(EventsContext context, ITypeResolverService typeResolverService)
+    public async Task Add(PlayerAggregate playerAggregate)
+    {
+        foreach (var evt in playerAggregate.UncommittedEvents)
         {
-            _context = context;
-            _typeResolverService = typeResolverService;
-        }
+            var eventType = evt.GetType();
 
-        public async Task Add(PlayerAggregate playerAggregate)
-        {
-            foreach (var evt in playerAggregate.UncommittedEvents)
+            var entity = new Domain.Entities.Stream
             {
-                var eventType = evt.GetType();
+                StreamId = playerAggregate.State.GameId,
+                EventId = evt.EventId,
+                Type = _typeResolverService.GetEventNameByType(eventType),
+                Data = JsonSerializer.Serialize(evt, eventType, Constants.EnumSerializerOptions),
+                MetaData = JsonSerializer.Serialize(new { playerAggregate.State.TeamId, PlayerId = playerAggregate.State.Id }, Constants.EnumSerializerOptions),
+                CreatedAt = _systemClock.UtcNow.DateTime,
+                Version = playerAggregate.Version
+            };
 
-                var entity = new Domain.Entities.Stream
-                {
-                    StreamId = playerAggregate.State.GameId,
-                    EventId = evt.EventId,
-                    Type = _typeResolverService.GetEventNameByType(eventType),
-                    Data = JsonSerializer.Serialize(evt, eventType, Constants.EnumSerializerOptions),
-                    MetaData = JsonSerializer.Serialize(new { playerAggregate.State.TeamId, PlayerId = playerAggregate.State.Id }, Constants.EnumSerializerOptions),
-                    CreatedAt = DateTime.UtcNow,
-                    Version = playerAggregate.Version
-                };
-
-                _context.Streams.Add(entity);
-            }
-
-            await _context.SaveChangesAsync();
+            _context.Streams.Add(entity);
         }
 
-        public async Task<IReadOnlyList<Domain.Entities.Stream>> Get(Guid gameId)
-        {
-            var response = await _context.Streams.Where(store => store.StreamId.Equals(gameId)).ToListAsync() ?? new List<Domain.Entities.Stream>();
-            return response;
-        }
+        await _context.SaveChangesAsync();
+    }
 
-        public async Task<IReadOnlyList<Domain.Entities.Stream>> GetAll(int skipEvents)
-        {
-            var response = await _context.Streams.Skip(skipEvents).ToListAsync();
-            return response;
-        }
+    public async Task<IReadOnlyList<Domain.Entities.Stream>> Get(Guid gameId)
+    {
+        var response = await _context.Streams.Where(store => store.StreamId.Equals(gameId)).ToListAsync() ?? new List<Domain.Entities.Stream>();
+        return response;
+    }
+
+    public async Task<IReadOnlyList<Domain.Entities.Stream>> GetAll(int skipEvents)
+    {
+        var response = await _context.Streams.Skip(skipEvents).ToListAsync();
+        return response;
     }
 }

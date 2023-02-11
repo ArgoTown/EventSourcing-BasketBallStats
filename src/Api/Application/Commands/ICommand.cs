@@ -1,9 +1,8 @@
 ﻿using BasketballStats.Domain.Aggregate;
 
-namespace BasketballStats.Api.Application.Commands
+namespace BasketballStats.Api.Application.Commands;
+
+public interface ICommand
 {
-    public interface ICommand
-    {
-        Player Player { get; init; }
-    }
+    Player Player { get; init; }
 }

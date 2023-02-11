@@ -1,10 +1,9 @@
 ﻿using BasketballStats.Api.Application.Commands;
 
-namespace BasketballStats.Api.Application.CommandHandlers
+namespace BasketballStats.Api.Application.CommandHandlers;
+
+public interface ICommandHandler
 {
-    public interface ICommandHandler
-    {
-        Task Handle(AddPlayerNegativeStatisticCommand command);
-        Task Handle(AddPlayerPositiveStatisticCommand command);
-    }
+    Task Handle(AddPlayerNegativeStatisticCommand command);
+    Task Handle(AddPlayerPositiveStatisticCommand command);
 }

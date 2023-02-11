@@ -10,104 +10,103 @@ using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 using Player = BasketballStats.Domain.Aggregate.Player;
 
-namespace BasketballStats.Infrastructure.Synchronizer
+namespace BasketballStats.Infrastructure.Synchronizer;
+
+public class ReadModelBackgroundService : BackgroundService
 {
-    public class ReadModelBackgroundService : BackgroundService
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ITypeResolverService _typeResolver;
+    private int _totalReadEventsCount;
+
+    public ReadModelBackgroundService(IServiceProvider serviceProvider, ITypeResolverService typeResolver)
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ITypeResolverService _typeResolver;
-        private int _totalReadEventsCount;
+        _serviceProvider = serviceProvider;
+        _typeResolver = typeResolver;
+    }
 
-        public ReadModelBackgroundService(IServiceProvider serviceProvider, ITypeResolverService typeResolver)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        Task.Run(() => ReadModelProjectionFromStreams(stoppingToken), stoppingToken);
+        return Task.CompletedTask;
+    }
+
+    private async Task ReadModelProjectionFromStreams(CancellationToken cancellationToken)
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var eventStoreRepository = scope.ServiceProvider.GetRequiredService<IEventStoreRepository>();
+
+        while (!cancellationToken.IsCancellationRequested)
         {
-            _serviceProvider = serviceProvider;
-            _typeResolver = typeResolver;
-        }
-
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            Task.Run(() => ReadModelProjectionFromStreams(stoppingToken), stoppingToken);
-            return Task.CompletedTask;
-        }
-
-        private async Task ReadModelProjectionFromStreams(CancellationToken cancellationToken)
-        {
-            using var scope = _serviceProvider.CreateScope();
-            var eventStoreRepository = scope.ServiceProvider.GetRequiredService<IEventStoreRepository>();
-
-            while (!cancellationToken.IsCancellationRequested)
+            var events = await eventStoreRepository.GetAll(_totalReadEventsCount);
+            if (events.Any())
             {
-                var events = await eventStoreRepository.GetAll(_totalReadEventsCount);
-                if (events.Any())
+                foreach (var @event in events)
                 {
-                    foreach (var @event in events)
-                    {
-                        var metadata = JsonSerializer.Deserialize<Metadata>(@event.MetaData)!;
-                        var player = new Player(@event.StreamId, metadata.TeamId, metadata.PlayerId);
-                        var aggregate = new PlayerAggregate(player);
-                        aggregate.ApplyEvent((IEvent)JsonSerializer.Deserialize(
-                            @event.Data,
-                            _typeResolver.GetTypeByEventName(@event.Type),
-                            Constants.EnumSerializerOptions)!);
+                    var metadata = JsonSerializer.Deserialize<Metadata>(@event.MetaData)!;
+                    var player = new Player(@event.StreamId, metadata.TeamId, metadata.PlayerId);
+                    var aggregate = new PlayerAggregate(player);
+                    aggregate.ApplyEvent((IEvent)JsonSerializer.Deserialize(
+                        @event.Data,
+                        _typeResolver.GetTypeByEventName(@event.Type),
+                        Constants.EnumSerializerOptions)!);
 
-                        await UpdateReadModel(scope, aggregate);
-                        _totalReadEventsCount++;
-                    }
+                    await UpdateReadModel(scope, aggregate);
+                    _totalReadEventsCount++;
                 }
             }
         }
+    }
 
-        private async Task UpdateReadModel(IServiceScope scope, PlayerAggregate aggregate)
+    private async Task UpdateReadModel(IServiceScope scope, PlayerAggregate aggregate)
+    {
+        var gameStatsReadModelRepository = scope.ServiceProvider.GetRequiredService<IGameStatsReadModel>();
+
+        var streamEntities = await gameStatsReadModelRepository.Get(aggregate.State.GameId);
+
+        var playerEntity = streamEntities.FirstOrDefault(streamEntity => streamEntity.PlayerId.Equals(aggregate.State.Id) && streamEntity.TeamId.Equals(aggregate.State.TeamId));
+        if (playerEntity is not null)
         {
-            var gameStatsReadModelRepository = scope.ServiceProvider.GetRequiredService<IGameStatsReadModel>();
+            playerEntity.Blocks += aggregate.State.Blocks;
+            playerEntity.BlocksReceived += aggregate.State.BlocksReceived;
+            playerEntity.DefensiveRebounds += aggregate.State.DefensiveRebounds;
+            playerEntity.Fouls += aggregate.State.Fouls;
+            playerEntity.FoulsProvoked += aggregate.State.FoulsProvoked;
+            playerEntity.MadeFreeThrows += aggregate.State.MadeFreeThrows;
+            playerEntity.MadeThreePoints += aggregate.State.MadeThreePoints;
+            playerEntity.MadeTwoPoints += aggregate.State.MadeTwoPoints;
+            playerEntity.MissedFreeThrows += aggregate.State.MissedFreeThrows;
+            playerEntity.MissedThreePoints += aggregate.State.MissedThreePoints;
+            playerEntity.MissedTwoPoints += aggregate.State.MissedTwoPoints;
+            playerEntity.OffensiveRebounds += aggregate.State.OffensiveRebounds;
+            playerEntity.Steals += aggregate.State.Steals;
+            playerEntity.Turnovers += aggregate.State.Turnovers;
 
-            var streamEntities = await gameStatsReadModelRepository.Get(aggregate.State.GameId);
-
-            var playerEntity = streamEntities.FirstOrDefault(streamEntity => streamEntity.PlayerId.Equals(aggregate.State.Id) && streamEntity.TeamId.Equals(aggregate.State.TeamId));
-            if (playerEntity is not null)
+            await gameStatsReadModelRepository.Update(playerEntity);
+        }
+        else
+        {
+            var entity = new GameStatsReadModel()
             {
-                playerEntity.Blocks += aggregate.State.Blocks;
-                playerEntity.BlocksReceived += aggregate.State.BlocksReceived;
-                playerEntity.DefensiveRebounds += aggregate.State.DefensiveRebounds;
-                playerEntity.Fouls += aggregate.State.Fouls;
-                playerEntity.FoulsProvoked += aggregate.State.FoulsProvoked;
-                playerEntity.MadeFreeThrows += aggregate.State.MadeFreeThrows;
-                playerEntity.MadeThreePoints += aggregate.State.MadeThreePoints;
-                playerEntity.MadeTwoPoints += aggregate.State.MadeTwoPoints;
-                playerEntity.MissedFreeThrows += aggregate.State.MissedFreeThrows;
-                playerEntity.MissedThreePoints += aggregate.State.MissedThreePoints;
-                playerEntity.MissedTwoPoints += aggregate.State.MissedTwoPoints;
-                playerEntity.OffensiveRebounds += aggregate.State.OffensiveRebounds;
-                playerEntity.Steals += aggregate.State.Steals;
-                playerEntity.Turnovers += aggregate.State.Turnovers;
+                Blocks = aggregate.State.Blocks,
+                BlocksReceived = aggregate.State.BlocksReceived,
+                DefensiveRebounds = aggregate.State.DefensiveRebounds,
+                Fouls = aggregate.State.Fouls,
+                FoulsProvoked = aggregate.State.FoulsProvoked,
+                GameId = aggregate.State.GameId,
+                MadeFreeThrows = aggregate.State.MadeFreeThrows,
+                MadeThreePoints = aggregate.State.MadeThreePoints,
+                MadeTwoPoints = aggregate.State.MadeTwoPoints,
+                MissedFreeThrows = aggregate.State.MissedFreeThrows,
+                MissedThreePoints = aggregate.State.MissedThreePoints,
+                MissedTwoPoints = aggregate.State.MissedTwoPoints,
+                OffensiveRebounds = aggregate.State.OffensiveRebounds,
+                Steals = aggregate.State.Steals,
+                Turnovers = aggregate.State.Turnovers,
+                PlayerId = aggregate.State.Id,
+                TeamId = aggregate.State.TeamId
+            };
 
-                await gameStatsReadModelRepository.Update(playerEntity);
-            }
-            else
-            {
-                var entity = new GameStatsReadModel()
-                {
-                    Blocks = aggregate.State.Blocks,
-                    BlocksReceived = aggregate.State.BlocksReceived,
-                    DefensiveRebounds = aggregate.State.DefensiveRebounds,
-                    Fouls = aggregate.State.Fouls,
-                    FoulsProvoked = aggregate.State.FoulsProvoked,
-                    GameId = aggregate.State.GameId,
-                    MadeFreeThrows = aggregate.State.MadeFreeThrows,
-                    MadeThreePoints = aggregate.State.MadeThreePoints,
-                    MadeTwoPoints = aggregate.State.MadeTwoPoints,
-                    MissedFreeThrows = aggregate.State.MissedFreeThrows,
-                    MissedThreePoints = aggregate.State.MissedThreePoints,
-                    MissedTwoPoints = aggregate.State.MissedTwoPoints,
-                    OffensiveRebounds = aggregate.State.OffensiveRebounds,
-                    Steals = aggregate.State.Steals,
-                    Turnovers = aggregate.State.Turnovers,
-                    PlayerId = aggregate.State.Id,
-                    TeamId = aggregate.State.TeamId
-                };
-
-                await gameStatsReadModelRepository.Add(entity);
-            }
+            await gameStatsReadModelRepository.Add(entity);
         }
     }
 }

@@ -10,32 +10,31 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace UnitTests.Api.Application.QueryHandler
+namespace UnitTests.Api.Application.QueryHandler;
+
+public class PlayerStatisticsQueryHandlerTests
 {
-    public class PlayerStatisticsQueryHandlerTests
+    [Theory, AutoMoqData]
+    public async Task Do(
+        [Frozen] Mock<IEventsService> eventsService, 
+        PlayerStatisticsQueryHandler sut, 
+        Player player, 
+        PositiveEventHappened @event)
     {
-        [Theory, AutoMoqData]
-        public async Task Do(
-            [Frozen] Mock<IEventsService> eventsService, 
-            PlayerStatisticsQueryHandler sut, 
-            Player player, 
-            PositiveEventHappened @event)
-        {
-            // Arrange
-            eventsService.Setup(x => x.GetExistingGameEvents(It.IsAny<PlayerAggregate>())).ReturnsAsync(new List<IEvent> { @event });
+        // Arrange
+        eventsService.Setup(x => x.GetExistingGameEvents(It.IsAny<PlayerAggregate>())).ReturnsAsync(new List<IEvent> { @event });
 
-            var aggregate = new PlayerAggregate(new Player(player.GameId, player.TeamId, player.Id));
-            aggregate.ApplyEvent(@event);
-            var aggregateResult = aggregate.TotalStats();
+        var aggregate = new PlayerAggregate(new Player(player.GameId, player.TeamId, player.Id));
+        aggregate.ApplyEvent(@event);
+        var aggregateResult = aggregate.TotalStats();
 
-            // Act
-            var result = await sut.Query(new GetPlayerStatisticsQuery(player));
+        // Act
+        var result = await sut.Query(new GetPlayerStatisticsQuery(player));
 
-            // Assert
-            result.TwoPointPercentage.ShouldBe(aggregateResult.TwoPointPercentage);
-            result.FreeThrowPercentage.ShouldBe(aggregateResult.FreeThrowPercentage);
-            result.ThreePointPercentage.ShouldBe(aggregateResult.ThreePointPercentage);
-            result.TotalPoints.ShouldBe(aggregateResult.TotalPoints);
-        }
+        // Assert
+        result.TwoPointPercentage.ShouldBe(aggregateResult.TwoPointPercentage);
+        result.FreeThrowPercentage.ShouldBe(aggregateResult.FreeThrowPercentage);
+        result.ThreePointPercentage.ShouldBe(aggregateResult.ThreePointPercentage);
+        result.TotalPoints.ShouldBe(aggregateResult.TotalPoints);
     }
 }

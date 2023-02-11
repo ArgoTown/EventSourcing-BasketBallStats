@@ -1,11 +1,10 @@
 ﻿using BasketballStats.Domain.Entities;
 
-namespace BasketballStats.Infrastructure.Repositories
+namespace BasketballStats.Infrastructure.Repositories;
+
+public interface IGameStatsReadModel
 {
-    public interface IGameStatsReadModel
-    {
-        Task Add(GameStatsReadModel statistics);
-        Task<IReadOnlyList<GameStatsReadModel>> Get(Guid gameId);
-        Task Update(GameStatsReadModel statistics);
-    }
+    Task Add(GameStatsReadModel statistics);
+    Task<IReadOnlyList<GameStatsReadModel>> Get(Guid gameId);
+    Task Update(GameStatsReadModel statistics);
 }
