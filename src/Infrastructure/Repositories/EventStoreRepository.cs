@@ -3,6 +3,7 @@ using BasketballStats.Domain.Aggregate;
 using BasketballStats.Domain.Repositories;
 using BasketballStats.Domain.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Internal;
 using System.Text.Json;
 
 namespace BasketballStats.Infrastructure.Repositories;
@@ -11,11 +12,16 @@ internal sealed class EventStoreRepository : IEventStoreRepository
 {
     private readonly EventsContext _context;
     private readonly ITypeResolverService _typeResolverService;
+    private readonly ISystemClock _systemClock;
 
-    public EventStoreRepository(EventsContext context, ITypeResolverService typeResolverService)
+    public EventStoreRepository(
+        EventsContext context, 
+        ITypeResolverService typeResolverService,
+        ISystemClock systemClock)
     {
         _context = context;
         _typeResolverService = typeResolverService;
+        _systemClock = systemClock;
     }
 
     public async Task Add(PlayerAggregate playerAggregate)
@@ -31,7 +37,7 @@ internal sealed class EventStoreRepository : IEventStoreRepository
                 Type = _typeResolverService.GetEventNameByType(eventType),
                 Data = JsonSerializer.Serialize(evt, eventType, Constants.EnumSerializerOptions),
                 MetaData = JsonSerializer.Serialize(new { playerAggregate.State.TeamId, PlayerId = playerAggregate.State.Id }, Constants.EnumSerializerOptions),
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = _systemClock.UtcNow.DateTime,
                 Version = playerAggregate.Version
             };
 
