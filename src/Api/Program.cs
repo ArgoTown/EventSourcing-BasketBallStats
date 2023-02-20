@@ -8,6 +8,7 @@ using BasketballStats.Infrastructure.Repositories;
 using BasketballStats.Infrastructure.Synchronizer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Internal;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -30,6 +31,7 @@ builder.Services
         });
     })
     .AddSingleton<ITypeResolverService, TypeResolverService>()
+    .AddSingleton<ISystemClock, SystemClock>()
     .AddScoped<IEventsService, EventsService>()
     .AddScoped<IQueryHandler<GetPlayerStatisticsQuery, PlayerStats>, PlayerStatisticsQueryHandler>()
     .AddScoped<ICommandHandler, StatisticCommandHandler>();
