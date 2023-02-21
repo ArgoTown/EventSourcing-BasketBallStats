@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "src\Api\Api.csproj", "{0621380C-2D96-4146-85F1-CBDA9CFB08C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasketballStats.Api", "src\Api\BasketballStats.Api.csproj", "{0621380C-2D96-4146-85F1-CBDA9CFB08C5}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{8BD8FAFD-D79D-46E9-B4C3-F95948AB175E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "src\Domain\Domain.csproj", "{726ADE20-8C79-4A42-AADC-5EA23277A5AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasketballStats.Domain", "src\Domain\BasketballStats.Domain.csproj", "{726ADE20-8C79-4A42-AADC-5EA23277A5AE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{4FA6392B-5B7A-4AC5-A08B-CA9535A5C0B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasketballStats.Infrastructure", "src\Infrastructure\BasketballStats.Infrastructure.csproj", "{4FA6392B-5B7A-4AC5-A08B-CA9535A5C0B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "tests\UnitTests\UnitTests.csproj", "{5DAA8B53-0412-4DD2-A514-96C923F79C39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasketballStats.UnitTests", "tests\UnitTests\BasketballStats.UnitTests.csproj", "{5DAA8B53-0412-4DD2-A514-96C923F79C39}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
