@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Domain\Domain.csproj" />
+		<ProjectReference Include="..\Domain\BasketballStats.Domain.csproj" />
 	</ItemGroup>
 
 </Project>

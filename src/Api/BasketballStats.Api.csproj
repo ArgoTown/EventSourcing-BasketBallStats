@@ -24,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain\Domain.csproj" />
-    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\Domain\BasketballStats.Domain.csproj" />
+    <ProjectReference Include="..\Infrastructure\BasketballStats.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
