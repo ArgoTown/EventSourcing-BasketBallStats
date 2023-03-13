@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace BasketballStats.Infrastructure.Synchronizer;
 
-public class ReadModelInMemoryBackgroundService : BackgroundService
+internal class ReadModelInMemoryBackgroundService : BackgroundService
 {
     private readonly IEventStoreRepository _eventStoreRepository;
     private readonly IGameStatsReadModel _statisticsReadModel;

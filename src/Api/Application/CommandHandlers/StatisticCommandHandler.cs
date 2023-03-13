@@ -5,7 +5,7 @@ using BasketballStats.Domain.Services;
 
 namespace BasketballStats.Api.Application.CommandHandlers;
 
-public class StatisticCommandHandler : ICommandHandler
+internal class StatisticCommandHandler : ICommandHandler
 {
     private readonly IEventStoreRepository _eventStoreRepository;
     private readonly IEventsService _eventsService;

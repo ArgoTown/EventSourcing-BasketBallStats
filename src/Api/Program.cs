@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Internal;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Metrics;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -34,7 +35,11 @@ builder.Services
     .AddSingleton<ISystemClock, SystemClock>()
     .AddScoped<IEventsService, EventsService>()
     .AddScoped<IQueryHandler<GetPlayerStatisticsQuery, PlayerStats>, PlayerStatisticsQueryHandler>()
-    .AddScoped<ICommandHandler, StatisticCommandHandler>();
+    .AddScoped<ICommandHandler, StatisticCommandHandler>()
+    .AddOpenTelemetry()
+    .WithMetrics(builder => builder
+        .AddAspNetCoreInstrumentation()
+        .AddPrometheusExporter());
 
 var healthChecks = builder.Services.AddHealthChecks();
 
@@ -72,6 +77,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 app.MapControllers();
 

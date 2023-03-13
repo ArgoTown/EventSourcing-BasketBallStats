@@ -12,7 +12,7 @@ using Player = BasketballStats.Domain.Aggregate.Player;
 
 namespace BasketballStats.Infrastructure.Synchronizer;
 
-public class ReadModelBackgroundService : BackgroundService
+internal class ReadModelBackgroundService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ITypeResolverService _typeResolver;

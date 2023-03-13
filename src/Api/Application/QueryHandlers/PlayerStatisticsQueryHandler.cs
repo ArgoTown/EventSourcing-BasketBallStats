@@ -5,7 +5,7 @@ using BasketballStats.Domain.Services;
 
 namespace BasketballStats.Api.Application.QueryHandlers;
 
-public class PlayerStatisticsQueryHandler : IQueryHandler<GetPlayerStatisticsQuery, PlayerStats>
+internal class PlayerStatisticsQueryHandler : IQueryHandler<GetPlayerStatisticsQuery, PlayerStats>
 {
     private readonly IEventsService _eventsService;
 
