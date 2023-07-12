@@ -10,7 +10,7 @@
 
 	<ItemGroup>
 		<InternalsVisibleTo Include="BasketballStats.Api" />
-		<InternalsVisibleTo Include="UnitTests" />
+		<InternalsVisibleTo Include="BasketballStats.UnitTests" />
 	</ItemGroup>
 
 </Project>

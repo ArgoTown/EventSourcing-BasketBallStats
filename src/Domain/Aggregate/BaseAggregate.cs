@@ -1,8 +1,9 @@
-﻿using BasketballStats.Domain.Events;
+﻿using BasketballStats.Domain.Aggregate.Base;
+using BasketballStats.Domain.Events;
 
 namespace BasketballStats.Domain.Aggregate;
 
-public abstract class BaseAggregate<TAggregate> where TAggregate : class
+public abstract class BaseAggregate<TAggregate> where TAggregate : IBaseAggregateRoot
 {
     private readonly List<IEvent> _events = new();
     public IReadOnlyList<IEvent> UncommittedEvents => _events;

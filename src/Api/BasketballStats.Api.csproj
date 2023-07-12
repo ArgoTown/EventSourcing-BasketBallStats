@@ -31,4 +31,8 @@
     <ProjectReference Include="..\Infrastructure\BasketballStats.Infrastructure.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="BasketballStats.UnitTests" />
+	</ItemGroup>
+
 </Project>

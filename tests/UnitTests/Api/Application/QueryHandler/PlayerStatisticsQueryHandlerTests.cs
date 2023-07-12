@@ -2,11 +2,9 @@
 using BasketballStats.Api.Application.Queries;
 using BasketballStats.Api.Application.QueryHandlers;
 using BasketballStats.Domain.Aggregate;
-using BasketballStats.Domain.Events;
 using BasketballStats.Domain.Services;
 using Moq;
 using Shouldly;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -15,26 +13,28 @@ namespace UnitTests.Api.Application.QueryHandler;
 public class PlayerStatisticsQueryHandlerTests
 {
     [Theory, AutoMoqData]
-    public async Task Do(
-        [Frozen] Mock<IEventsService> eventsService, 
-        PlayerStatisticsQueryHandler sut, 
-        Player player, 
-        PositiveEventHappened @event)
+    public async Task Query_PlayerStatisticsAndApplyToAggregate_ShouldStatisticsMatch(
+        [Frozen] Mock<IAggregateStateService> eventsService, 
+        Player player)
     {
         // Arrange
-        eventsService.Setup(x => x.GetExistingGameEvents(It.IsAny<PlayerAggregate>())).ReturnsAsync(new List<IEvent> { @event });
+        var sut = new PlayerStatisticsQueryHandler(eventsService.Object);
+
+        eventsService.Setup(x => x.ApplyCurrentState(It.IsAny<PlayerAggregate>()));
 
         var aggregate = new PlayerAggregate(new Player(player.GameId, player.TeamId, player.Id));
-        aggregate.ApplyEvent(@event);
-        var aggregateResult = aggregate.TotalStats();
 
         // Act
         var result = await sut.Query(new GetPlayerStatisticsQuery(player));
 
         // Assert
-        result.TwoPointPercentage.ShouldBe(aggregateResult.TwoPointPercentage);
-        result.FreeThrowPercentage.ShouldBe(aggregateResult.FreeThrowPercentage);
-        result.ThreePointPercentage.ShouldBe(aggregateResult.ThreePointPercentage);
-        result.TotalPoints.ShouldBe(aggregateResult.TotalPoints);
+        eventsService.Verify(x => x.ApplyCurrentState(It.IsAny<PlayerAggregate>()), Times.Once);
+
+        var aggregateStats = aggregate.TotalStats();
+
+        result.TwoPointPercentage.ShouldBe(aggregateStats.TwoPointPercentage);
+        result.FreeThrowPercentage.ShouldBe(aggregateStats.FreeThrowPercentage);
+        result.ThreePointPercentage.ShouldBe(aggregateStats.ThreePointPercentage);
+        result.TotalPoints.ShouldBe(aggregateStats.TotalPoints);
     }
 }
