@@ -1,6 +1,8 @@
-﻿namespace BasketballStats.Domain.Aggregate;
+﻿using BasketballStats.Domain.Aggregate.Base;
 
-public record Game
+namespace BasketballStats.Domain.Aggregate;
+
+public record Game : IBaseDomainEntity
 {
     public Guid Id { get; init; } = Guid.NewGuid();
     public Guid TeamHomeId { get; init; }
