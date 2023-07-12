@@ -2,6 +2,7 @@
 using BasketballStats.Api.Application.CommandHandlers;
 using BasketballStats.Api.Application.Commands;
 using BasketballStats.Domain.Aggregate;
+using BasketballStats.Domain.Events;
 using BasketballStats.Domain.Repositories;
 using BasketballStats.Domain.Services;
 using Moq;
@@ -18,20 +19,21 @@ public class StatisticCommandHandlerTests
         [Frozen] Mock<IAggregateStateService> eventsService,
         AddPlayerPositiveStatisticCommand command
     )
-    {
-        // Arrange
+    { // Arrange
+        var aggregate = new PlayerAggregate(command.Player);
+
         var sut = new StatisticCommandHandler(eventStoreRepository.Object, eventsService.Object);
 
         eventStoreRepository.Setup(x => x.Add(It.IsAny<PlayerAggregate>()));
 
-        eventsService.Setup(x => x.ApplyCurrentState(It.IsAny<PlayerAggregate>()));
+        eventsService.Setup(x => x.ApplyCurrentState(It.IsAny<PlayerAggregate>(), It.IsAny<PositiveStatistic>()));
 
         // Act
         await sut.Handle(command);
 
         // Assert
         eventStoreRepository.Verify(x => x.Add(It.IsAny<PlayerAggregate>()), Times.Once);
-        eventsService.Verify(x => x.ApplyCurrentState(It.IsAny<PlayerAggregate>()), Times.Once);
+        eventsService.Verify(x => x.ApplyCurrentState(It.IsAny<PlayerAggregate>(), It.IsAny<PositiveStatistic>()), Times.Once);
     }
 
     [Theory, AutoMoqData]
@@ -42,19 +44,19 @@ public class StatisticCommandHandlerTests
     )
     {
         // Arrange
+        var aggregate = new PlayerAggregate(command.Player);
+
         var sut = new StatisticCommandHandler(eventStoreRepository.Object, eventsService.Object);
 
-        eventStoreRepository
-            .Setup(x => x.Add(It.IsAny<PlayerAggregate>()));
+        eventStoreRepository.Setup(x => x.Add(It.IsAny<PlayerAggregate>()));
 
-        eventsService
-            .Setup(x => x.ApplyCurrentState(It.IsAny<PlayerAggregate>()));
+        eventsService.Setup(x => x.ApplyCurrentState(It.IsAny<PlayerAggregate>(), It.IsAny<NegativeStatistic>()));
 
         // Act
         await sut.Handle(command);
 
         // Assert
         eventStoreRepository.Verify(x => x.Add(It.IsAny<PlayerAggregate>()), Times.Once);
-        eventsService.Verify(x => x.ApplyCurrentState(It.IsAny<PlayerAggregate>()), Times.Once);
+        eventsService.Verify(x => x.ApplyCurrentState(It.IsAny<PlayerAggregate>(), It.IsAny<NegativeStatistic>()), Times.Once);
     }
 }
