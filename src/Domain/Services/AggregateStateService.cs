@@ -20,6 +20,23 @@ internal sealed class AggregateStateService : IAggregateStateService
 
     public async Task ApplyCurrentState(PlayerAggregate aggregate)
     {
+        await ApplyState(aggregate);
+    }
+
+    public async Task ApplyCurrentState(PlayerAggregate aggregate, PositiveStatistic statistic)
+    {
+        await ApplyState(aggregate);
+        aggregate.AddStatistic(statistic);
+    }
+
+    public async Task ApplyCurrentState(PlayerAggregate aggregate, NegativeStatistic statistic)
+    {
+        await ApplyState(aggregate);
+        aggregate.AddStatistic(statistic);
+    }
+
+    private async Task ApplyState(PlayerAggregate aggregate)
+    {
         var streamEvents = await _eventStoreRepository.Get(aggregate.State.GameId);
         var playerStreams = streamEvents
             .Where(@event =>

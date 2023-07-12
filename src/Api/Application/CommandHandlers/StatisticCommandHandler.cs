@@ -19,20 +19,14 @@ internal class StatisticCommandHandler : ICommandHandler
     public async Task Handle(AddPlayerNegativeStatisticCommand command)
     {
         var aggregate = new PlayerAggregate(command.Player);
-
-        await _eventsService.ApplyCurrentState(aggregate);
-
-        aggregate.AddStatistic(command.NegativeStatistic);
+        await _eventsService.ApplyCurrentState(aggregate, command.NegativeStatistic);
         await _eventStoreRepository.Add(aggregate);
     }
 
     public async Task Handle(AddPlayerPositiveStatisticCommand command)
     {
         var aggregate = new PlayerAggregate(command.Player);
-
-        await _eventsService.ApplyCurrentState(aggregate);
-
-        aggregate.AddStatistic(command.PositiveStatistic);
+        await _eventsService.ApplyCurrentState(aggregate, command.PositiveStatistic);
         await _eventStoreRepository.Add(aggregate);
     }
 }
