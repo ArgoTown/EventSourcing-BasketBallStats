@@ -7,18 +7,18 @@ using System.Text.Json;
 
 namespace BasketballStats.Domain.Services;
 
-internal sealed class EventsService : IEventsService
+internal sealed class AggregateStateService : IAggregateStateService
 {
     private readonly IEventStoreRepository _eventStoreRepository;
     private readonly ITypeResolverService _typeResolver;
 
-    public EventsService(IEventStoreRepository eventStoreRepository, ITypeResolverService typeResolver)
+    public AggregateStateService(IEventStoreRepository eventStoreRepository, ITypeResolverService typeResolver)
     {
         _eventStoreRepository = eventStoreRepository;
         _typeResolver = typeResolver;
     }
 
-    public async Task<IReadOnlyCollection<IEvent>> GetExistingGameEvents(PlayerAggregate aggregate)
+    public async Task ApplyCurrentState(PlayerAggregate aggregate)
     {
         var streamEvents = await _eventStoreRepository.Get(aggregate.State.GameId);
         var playerStreams = streamEvents
@@ -31,14 +31,13 @@ internal sealed class EventsService : IEventsService
 
         if (playerStreams.Any())
         {
-            return playerStreams
+            aggregate.ApplyEvents(
+             playerStreams
                 .Select(stream => (IEvent)JsonSerializer.Deserialize(
                     stream.Data,
                     _typeResolver.GetTypeByEventName(stream.Type),
                     Constants.EnumSerializerOptions)!)
-                .ToImmutableList();
+                .ToImmutableList());
         }
-
-        return Array.Empty<IEvent>();
     }
 }

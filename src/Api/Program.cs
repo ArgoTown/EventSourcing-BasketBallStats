@@ -33,7 +33,7 @@ builder.Services
     })
     .AddSingleton<ITypeResolverService, TypeResolverService>()
     .AddSingleton<ISystemClock, SystemClock>()
-    .AddScoped<IEventsService, EventsService>()
+    .AddScoped<IAggregateStateService, AggregateStateService>()
     .AddScoped<IQueryHandler<GetPlayerStatisticsQuery, PlayerStats>, PlayerStatisticsQueryHandler>()
     .AddScoped<ICommandHandler, StatisticCommandHandler>()
     .AddOpenTelemetry()

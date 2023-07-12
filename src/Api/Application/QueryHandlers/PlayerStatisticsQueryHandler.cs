@@ -7,9 +7,9 @@ namespace BasketballStats.Api.Application.QueryHandlers;
 
 internal class PlayerStatisticsQueryHandler : IQueryHandler<GetPlayerStatisticsQuery, PlayerStats>
 {
-    private readonly IEventsService _eventsService;
+    private readonly IAggregateStateService _eventsService;
 
-    public PlayerStatisticsQueryHandler(IEventsService eventsService)
+    public PlayerStatisticsQueryHandler(IAggregateStateService eventsService)
     {
         _eventsService = eventsService;
     }
@@ -17,10 +17,7 @@ internal class PlayerStatisticsQueryHandler : IQueryHandler<GetPlayerStatisticsQ
     public async Task<PlayerStats> Query(GetPlayerStatisticsQuery query)
     {
         var aggregate = new PlayerAggregate(query.Player);
-        var events = await _eventsService.GetExistingGameEvents(aggregate);
-
-        aggregate.ApplyEvents(events);
-
+        await _eventsService.ApplyCurrentState(aggregate);
         return aggregate.TotalStats();
     }
 }
