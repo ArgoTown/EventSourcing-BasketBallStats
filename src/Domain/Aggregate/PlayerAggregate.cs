@@ -1,4 +1,5 @@
-﻿using BasketballStats.Domain.Events;
+﻿using BasketballStats.Domain.Aggregate.Base;
+using BasketballStats.Domain.Events;
 using BasketballStats.Domain.Models;
 
 namespace BasketballStats.Domain.Aggregate;
